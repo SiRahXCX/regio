@@ -2,7 +2,7 @@ import csv
 from pypdf import PdfReader, PdfWriter
 
 
-def fill_pdf_template_from_csv(csv_filepath, template_filepath, output_filepath):
+def fill_pdf_template_from_csv(csv_filepath: str, template_filepath: str, output_filepath: str) -> None:
     with open(csv_filepath, mode='r', encoding='utf-8-sig') as csv_file:
         reader = csv.DictReader(csv_file)
 
