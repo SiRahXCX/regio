@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from utils import fill_pdf_template_from_csv as generate_pdf_from_csv, fill_pdf_template_from_xlsx as generate_pdf_from_xlsx
-
+from utils import extract_data_from_xlsx, extract_data_from_csv, fill_and_save_template
 
 csv_path_var_default_text = "No CSV file selected"
 pdf_path_var_default_text = "No PDF file selected"
@@ -61,12 +60,18 @@ def save_pdf() -> None:
     if validate_paths():
         ext = csv_path_var.get().split('.')[-1]
         if ext.lower() == 'xlsx':
-            generate_pdf_from_xlsx(csv_path_var.get(), pdf_path_var.get(), output_path_var.get())
+            data = extract_data_from_xlsx(csv_path_var.get())
         elif ext.lower() == 'csv':
-            generate_pdf_from_csv(csv_path_var.get(), pdf_path_var.get(), output_path_var.get())
+            data = extract_data_from_csv(csv_path_var.get())
         else:
             print('Error unrecognised data file type')
             return
+
+        fill_and_save_template(data, pdf_path_var.get(), output_path_var.get())
+        print('Success files saved successfully')
+    else:
+        print('Error some paths are missing')
+        return
 
 
 root = tk.Tk()
