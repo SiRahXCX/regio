@@ -44,7 +44,7 @@ def select_save_path() -> None:
         output_path_display.config(state="readonly")
 
 
-def validate_files() -> bool:
+def validate_paths() -> bool:
     if csv_path_var == csv_path_var_default_text:
         return False
     
@@ -58,7 +58,7 @@ def validate_files() -> bool:
 
 
 def save_pdf() -> None:
-    if validate_files():
+    if validate_paths():
         generate_pdf(csv_path_var.get(), pdf_path_var.get(), output_path_var.get())
 
 
