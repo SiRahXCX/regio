@@ -1,45 +1,77 @@
 import tkinter as tk
 from tkinter import filedialog
-from utils import fill_pdf_template_from_csv as generate_pdf 
+from utils import extract_data_from_xlsx, extract_data_from_csv, fill_and_save_template
 
+csv_path_var_default_text = "No CSV file selected"
+pdf_path_var_default_text = "No PDF file selected"
+output_path_var_default_text = "No Output directory selected"
 
-def select_csv():
+def select_csv() -> None:
     csv_filename = filedialog.askopenfilename(
         initialdir="/",
         title="Select CSV",
         filetypes=(("CSV Files", "*.csv"), ("All Files", "*.*")),
     )
+
     if csv_filename:
         csv_path_display.config(state="normal")
         csv_path_var.set(csv_filename)
         csv_path_display.config(state="readonly")
 
 
-def select_pdf():
+def select_pdf() -> None:
     pdf_filename = filedialog.askopenfilename(
         initialdir="/",
         title="Select PDF",
         filetypes=(("PDF Files", "*.pdf"), ("All Files", "*.*")),
     )
+
     if pdf_filename:
         pdf_path_display.config(state="normal")
         pdf_path_var.set(pdf_filename)
         pdf_path_display.config(state="readonly")
 
 
-def select_save_path():
+def select_save_path() -> None:
     new_pdf_file_path = filedialog.askdirectory(
         initialdir="/", title="Select PDF save path", parent=root, mustexist=True
     )
+
     if new_pdf_file_path:
         output_path_display.config(state="normal")
         output_path_var.set(new_pdf_file_path)
         output_path_display.config(state="readonly")
 
 
-def save_pdf():
-    if csv_path_var and pdf_path_var and output_path_var:
-        generate_pdf(csv_path_var.get(), pdf_path_var.get(), output_path_var.get())
+def validate_paths() -> bool:
+    if csv_path_var == csv_path_var_default_text:
+        return False
+    
+    if pdf_path_var == pdf_path_var_default_text:
+        return False
+
+    if output_path_var == output_path_var_default_text:
+        return False
+
+    return True
+
+
+def save_pdf() -> None:
+    if validate_paths():
+        ext = csv_path_var.get().split('.')[-1]
+        if ext.lower() == 'xlsx':
+            data = extract_data_from_xlsx(csv_path_var.get())
+        elif ext.lower() == 'csv':
+            data = extract_data_from_csv(csv_path_var.get())
+        else:
+            print('Error unrecognised data file type')
+            return
+
+        fill_and_save_template(data, pdf_path_var.get(), output_path_var.get())
+        print('Success files saved successfully')
+    else:
+        print('Error some paths are missing')
+        return
 
 
 root = tk.Tk()
@@ -66,7 +98,7 @@ csv_con.columnconfigure(1, weight=0)
 csv_label = tk.Label(csv_con, text="CSV File", font=("Arial", 10))
 csv_label.grid(column=0, row=0, padx=10, pady=0, sticky="w")
 
-csv_path_var = tk.StringVar(value="No CSV file selected")
+csv_path_var = tk.StringVar(value=csv_path_var_default_text)
 csv_path_display = tk.Entry(
     csv_con,
     textvariable=csv_path_var,
@@ -92,7 +124,7 @@ pdf_con.columnconfigure(1, weight=0)
 pdf_label = tk.Label(pdf_con, text="PDF File", font=("Arial", 10))
 pdf_label.grid(column=0, row=0, padx=10, pady=0, sticky="w")
 
-pdf_path_var = tk.StringVar(value="No PDF file selected")
+pdf_path_var = tk.StringVar(value=pdf_path_var_default_text)
 pdf_path_display = tk.Entry(
     pdf_con,
     textvariable=pdf_path_var,
@@ -118,7 +150,7 @@ od_con.columnconfigure(1, weight=0)
 output_dir_label = tk.Label(od_con, text="Output Directory", font=("Arial", 10))
 output_dir_label.grid(column=0, row=0, padx=10, pady=0, sticky="w")
 
-output_path_var = tk.StringVar(value="No output directory selected")
+output_path_var = tk.StringVar(value=output_path_var_default_text)
 output_path_display = tk.Entry(
     od_con,
     textvariable=output_path_var,
